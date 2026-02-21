@@ -2,7 +2,7 @@
 #include "MainMenuState.hpp" 
 
 
-Game::Game() : window(sf::VideoMode(800, 600), "Average HSE Student Routine") {
+Game::Game() : window(sf::VideoMode(sf::Vector2u{800u, 600u}), "Average HSE Student Routine") {
     //start menu
     stateManager.Push(std::make_unique<MainMenuState>(stateManager));
 }
@@ -24,12 +24,11 @@ void Game::Run() {
 
 
 void Game::ProcessEvents() {
-    sf::Event event;
-    while (window.pollEvent(event)) {
-        if (event.type == sf::Event::Closed) {
+    while (auto eventOpt = window.pollEvent()) {
+        const sf::Event& event = *eventOpt;
+        if (event.is<sf::Event::Closed>()) {
             window.close();
         }
-
         stateManager.HandleEvent(event);
     }
 }
