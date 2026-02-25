@@ -1,16 +1,20 @@
 #include "CorridorState.hpp"
 
-CorridorState::CorridorState(StateManager& stateManager) : manager(stateManager) {}
+CorridorState::CorridorState(StateManager& stateManager)
+    : manager(stateManager)
+    , m_student(m_resources.GetTexture("student"))
+{
+}
 
 void CorridorState::HandleEvent(const sf::Event& event) {
     // todo
 }
 
 void CorridorState::Update(sf::Time dt) {
-    //todo
+    m_student.Update(dt);
 }
 
 void CorridorState::Render(sf::RenderWindow& window) {
-    //todo: background, now - color (different from main menu)
-    window.clear(sf::Color(20, 100, 20)); 
+    window.clear(sf::Color(100, 100, 100)); 
+    m_student.Render(window);
 }
