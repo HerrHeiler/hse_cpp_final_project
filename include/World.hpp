@@ -12,5 +12,7 @@ public:
     void Render(sf::RenderWindow& window);
 
 private:
-    ResourceManager& m_resources;          
+    ResourceManager& m_resources;       
+    sf::Sprite m_background; 
+    Student m_student;   
 };

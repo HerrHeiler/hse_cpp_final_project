@@ -1,8 +1,8 @@
 #include "CorridorState.hpp"
 
-CorridorState::CorridorState(StateManager& stateManager)
+CorridorState::CorridorState(StateManager& stateManager) 
     : manager(stateManager)
-    , m_student(m_resources.GetTexture("student"))
+    , m_world(m_resources) 
 {
 }
 
@@ -11,10 +11,10 @@ void CorridorState::HandleEvent(const sf::Event& event) {
 }
 
 void CorridorState::Update(sf::Time dt) {
-    m_student.Update(dt);
+    m_world.Update(dt);
 }
 
 void CorridorState::Render(sf::RenderWindow& window) {
-    window.clear(sf::Color(100, 100, 100)); 
-    m_student.Render(window);
+    window.clear();
+    m_world.Render(window);
 }

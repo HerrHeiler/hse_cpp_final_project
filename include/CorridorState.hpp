@@ -1,8 +1,8 @@
 #pragma once
 #include "State.hpp"
 #include "StateManager.hpp"
-#include "ResourceManager.hpp" 
-#include "Student.hpp"         
+#include "ResourceManager.hpp"
+#include "World.hpp" 
 
 class CorridorState : public State {
 public:
@@ -14,6 +14,6 @@ public:
 
 private:
     StateManager& manager;
-    ResourceManager m_resources; 
-    Student m_student;          
+    ResourceManager m_resources;
+    World m_world;
 };

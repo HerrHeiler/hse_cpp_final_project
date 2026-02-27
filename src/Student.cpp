@@ -22,3 +22,15 @@ void Student::Update(sf::Time dt) {
 void Student::Render(sf::RenderWindow& window) {
     window.draw(m_sprite);
 }
+
+void Student::SetPosition(float x, float y) {
+    m_sprite.setPosition({x, y});
+}
+
+sf::Vector2f Student::GetPosition() const {
+    return m_sprite.getPosition();
+}
+
+sf::FloatRect Student::GetBounds() const {
+    return m_sprite.getGlobalBounds();
+}
