@@ -6,7 +6,7 @@
 
 class CorridorState : public State {
 public:
-    CorridorState(StateManager& stateManager);
+    explicit CorridorState(StateManager& stateManager);
     
     void HandleEvent(const sf::Event& event) override;
     void Update(sf::Time dt) override;

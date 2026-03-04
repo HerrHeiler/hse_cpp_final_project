@@ -59,7 +59,7 @@ cd hse_cpp_final_project
 mkdir build
 cd build
 
-cmake .. -DSFML_DIR=/opt/homebrew/opt/sfml/lib/cmake/SFML
+cmake .. -DCMAKE_POLICY_DEFAULT_CMP0135=NEW
 cmake --build .
 ```
 Run

@@ -8,7 +8,7 @@ Student::Student(const sf::Texture& texture)
     m_sprite.setPosition({400.f, 300.f}); 
 }
 
-void Student::Update(sf::Time dt) {
+void Student::Update(float dt) {
     sf::Vector2f movement({0.f, 0.f});
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W)) movement.y -= m_speed;
@@ -16,11 +16,11 @@ void Student::Update(sf::Time dt) {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)) movement.x -= m_speed;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)) movement.x += m_speed;
 
-    m_sprite.move(movement * dt.asSeconds());
+    m_sprite.move(movement * dt);
 }
 
-void Student::Render(sf::RenderWindow& window) {
-    window.draw(m_sprite);
+void Student::Render(sf::RenderTarget& target) {
+    target.draw(m_sprite);
 }
 
 void Student::SetPosition(float x, float y) {
@@ -34,3 +34,5 @@ sf::Vector2f Student::GetPosition() const {
 sf::FloatRect Student::GetBounds() const {
     return m_sprite.getGlobalBounds();
 }
+
+void Student::HandleEvent(const sf::Event& event) {}
