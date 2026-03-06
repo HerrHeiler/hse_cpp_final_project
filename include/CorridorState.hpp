@@ -16,4 +16,6 @@ private:
     StateManager& manager;
     ResourceManager m_resources;
     World m_world;
+
+    sf::Text m_instruction;
 };

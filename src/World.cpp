@@ -1,4 +1,6 @@
 #include "World.hpp"
+#include "RoomState.hpp"
+
 
 World::World(ResourceManager& rm, StateManager& sm)
     : resourceManager(rm)
@@ -55,7 +57,7 @@ void World::CheckDoorCollision(const sf::FloatRect& studentBounds, bool ePressed
     for (const auto& door : doors) {
         if (studentBounds.findIntersection(door.bounds).has_value()) {
             currentRoom = door.target;
-            // TODO: смена State
+            manager.Push(std::make_unique<RoomState>(manager, resourceManager, currentRoom));
             return;
         }
     }
