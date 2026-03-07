@@ -1,5 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include "RoomType.hpp"
 
 class Student {
 public:
@@ -18,7 +19,19 @@ public:
 
     void HandleEvent(const sf::Event& event);
 
+    void ModifyStats(float dEnergy, float dKnowledge, float dMentalState);
+
+    float GetMentalState() const { return mental_state; }
+    float GetEnergy() const { return energy; }
+    float GetKnowledge() const { return knowledge; }
+
+    void UpdateEnvironment(RoomType type, float dt);
+
 private:
-    sf::Sprite m_sprite;
-    float m_speed;
+    sf::Sprite sprite;
+    float speed;
+
+    float mental_state;
+    float energy;
+    float knowledge;
 };

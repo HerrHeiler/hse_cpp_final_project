@@ -1,5 +1,6 @@
 #include "ResourceManager.hpp"
 #include <filesystem>
+#include <stdexcept>
 
 void ResourceManager::LoadTexture(const std::string& id) {
     sf::Texture texture;

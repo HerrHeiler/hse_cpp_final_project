@@ -1,4 +1,5 @@
 #include "StateManager.hpp"
+#include "State.hpp"
 
 void StateManager::Push(std::unique_ptr<State> state) {
     states.push(std::move(state));
@@ -25,7 +26,7 @@ void StateManager::HandleEvent(const sf::Event& event) {
     }
 }
 
-void StateManager::Update(sf::Time dt) {
+void StateManager::Update(float dt) {
     if (!states.empty()) {
         states.top()->Update(dt);
     }

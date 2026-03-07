@@ -1,10 +1,15 @@
 #include "MainMenuState.hpp"
-#include "CorridorState.hpp"
+//#include "CorridorState.hpp"
 #include <SFML/Window/Event.hpp>
+#include "ResourceManager.hpp"
+#include "Student.hpp"
+#include "World.hpp"
 
-MainMenuState::MainMenuState(StateManager& stateManager)
-    : manager(stateManager), m_resources()
-    , m_text(m_resources.GetFont("default"), "Press Enter to start", 30)
+MainMenuState::MainMenuState(StateManager& sm, ResourceManager& rm, Student& st)
+    : stateManager(sm)
+    , resourceManager(rm)
+    , student(st)
+    , m_text(resourceManager.GetFont("default"), "Press Enter to start", 30)
 {
     sf::FloatRect bounds = m_text.getLocalBounds();
     
@@ -20,12 +25,12 @@ void MainMenuState::HandleEvent(const sf::Event& event) {
     // on enter change to corridor
     if (const auto* keyPressed = event.getIf<sf::Event::KeyPressed>()) {
         if (keyPressed->code == sf::Keyboard::Key::Enter) {
-            manager.Change(std::make_unique<CorridorState>(manager));
+            stateManager.Change(std::make_unique<World>(resourceManager, stateManager, student));
         }
     }
 }
 
-void MainMenuState::Update(sf::Time dt) {
+void MainMenuState::Update(float dt) {
     // todo
 }
 

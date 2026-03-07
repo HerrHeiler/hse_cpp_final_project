@@ -1,8 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <string>
-
-enum class RoomType { Home, Lecture, Seminar, Cafeteria };
+#include "RoomType.hpp"
 
 struct Door {
     sf::FloatRect bounds;

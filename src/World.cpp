@@ -2,10 +2,10 @@
 #include "RoomState.hpp"
 
 
-World::World(ResourceManager& rm, StateManager& sm)
+World::World(ResourceManager& rm, StateManager& sm, Student& student)
     : resourceManager(rm)
     , manager(sm)
-    , student(resourceManager.GetTexture("student"))
+    , student(student)
     , m_background(resourceManager.GetTexture("corridor"))
     , currentRoom(RoomType::Home)
 {
@@ -15,7 +15,34 @@ World::World(ResourceManager& rm, StateManager& sm)
         600.0f / static_cast<float>(texSize.y)
     });
 
+    m_uiFont = &resourceManager.GetFont("default");
+    InitUI();
     LoadDoors();
+}
+
+void World::InitUI() {
+    m_energyText.emplace(*m_uiFont, "Energy: 100", 18);
+    m_energyText->setFillColor(sf::Color::White);
+    m_energyText->setPosition({12.f, 10.f});
+
+    m_knowledgeText.emplace(*m_uiFont, "Knowledge: 0", 18);
+    m_knowledgeText->setFillColor(sf::Color::Yellow);
+    m_knowledgeText->setPosition({12.f, 35.f});
+
+    m_mental_stateText.emplace(*m_uiFont, "Mental State: 50", 18);
+    m_mental_stateText->setFillColor(sf::Color(0, 200, 0));
+    m_mental_stateText->setPosition({12.f, 60.f});
+}
+
+void World::UpdateUI() {
+    if (m_energyText.has_value())
+        m_energyText->setString("Energy: " + std::to_string(static_cast<int>(student.GetEnergy())));
+    
+    if (m_knowledgeText.has_value())
+        m_knowledgeText->setString("Knowledge: " + std::to_string(static_cast<int>(student.GetKnowledge())));
+    
+    if (m_mental_stateText.has_value())
+        m_mental_stateText->setString("Mental State: " + std::to_string(static_cast<int>(student.GetMentalState())));
 }
 
 void World::LoadDoors() {
@@ -41,15 +68,21 @@ void World::Update(float deltaTime) {
     
     bool ePressed = sf::Keyboard::isKeyPressed(sf::Keyboard::Key::E);
     CheckDoorCollision(studentBounds, ePressed);
+
+    UpdateUI();
 }
 
-void World::Render(sf::RenderTarget& target) {
-    target.draw(m_background);
+void World::Render(sf::RenderWindow& window) {
+    window.draw(m_background);
     for (const auto& door : doors) {
-        target.draw(door.shape);
-        target.draw(door.text);
+        window.draw(door.shape);
+        window.draw(door.text);
     }    
-    student.Render(target);
+    student.Render(window);
+
+    if (m_energyText.has_value()) window.draw(m_energyText.value());
+    if (m_knowledgeText.has_value()) window.draw(m_knowledgeText.value());
+    if (m_mental_stateText.has_value()) window.draw(m_mental_stateText.value());
 }
 
 void World::CheckDoorCollision(const sf::FloatRect& studentBounds, bool ePressed) {
@@ -57,7 +90,7 @@ void World::CheckDoorCollision(const sf::FloatRect& studentBounds, bool ePressed
     for (const auto& door : doors) {
         if (studentBounds.findIntersection(door.bounds).has_value()) {
             currentRoom = door.target;
-            manager.Push(std::make_unique<RoomState>(manager, resourceManager, currentRoom));
+            manager.Push(std::make_unique<RoomState>(manager, resourceManager, currentRoom, student));
             return;
         }
     }

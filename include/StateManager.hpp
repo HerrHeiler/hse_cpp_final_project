@@ -3,6 +3,8 @@
 #include <memory> 
 #include "State.hpp"
 
+class State;
+
 class StateManager {
 public:
     
@@ -17,8 +19,10 @@ public:
 
 
     void HandleEvent(const sf::Event& event);
-    void Update(sf::Time dt);
+    void Update(float dt);
     void Render(sf::RenderWindow& window);
+
+    State* GetCurrentState();
 
 private:
     std::stack<std::unique_ptr<State>> states;

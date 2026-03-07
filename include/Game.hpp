@@ -1,19 +1,25 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include "StateManager.hpp"
+#include "Student.hpp"
+#include "ResourceManager.hpp"
 
 class Game {
 private:
     
-    void ProcessEvents();      
-    void Update(sf::Time dt);  
-    void Render();             
-    StateManager stateManager;
+    void ProcessEvents();
+    void Update(float dt);
+    void Render();
 
-    sf::RenderWindow window; 
+    StateManager stateManager;
+    ResourceManager resourceManager;
+    Student* student{nullptr};
+
+    sf::RenderWindow window;
+
 public:
     Game(); 
-    void Run(); 
-
+    ~Game(); 
+    void Run();
 
 };

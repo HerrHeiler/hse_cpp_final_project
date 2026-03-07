@@ -5,30 +5,40 @@
 #include "Door.hpp" 
 #include <SFML/Graphics.hpp>
 #include "Student.hpp"
+#include <optional>
 
 class RoomState : public State {
 public:
-    RoomState(StateManager& stateManager, ResourceManager& resources, RoomType type);
+    RoomState(StateManager& stateManager, ResourceManager& resources, RoomType type, Student& student);
 
     void HandleEvent(const sf::Event& event) override;
-    void Update(sf::Time dt) override;
+    void Update(float dt) override;
     void Render(sf::RenderWindow& window) override;
 
 private:
     StateManager& manager;
-    ResourceManager& m_resources;
-    RoomType roomType;
+    ResourceManager& resourceManager;
+    Student& m_student;
+    RoomType currentRoom;
     
     sf::Sprite m_background; 
-    sf::Text m_title;       
-    sf::Text m_hint;  
-    sf::Text m_secretHint;
+    std::optional<sf::Text> m_title;       
+    std::optional<sf::Text> m_hint;  
+    std::optional<sf::Text> m_secretHint;
     
-    Student m_student;
-
     bool m_isGlitchActive; 
-    sf::Time m_glitchTimer;
+    float m_glitchTimer{0.f};
+    float m_glitchDuration{2.f};
     sf::RectangleShape m_achievementBox;
-    sf::Text m_achievement;
+    std::optional<sf::Text> m_achievement;
+
+    std::optional<sf::Text> m_energyUI;
+    std::optional<sf::Text> m_knowledgeUI;
+    std::optional<sf::Text> m_mentalUI;
+    
+    bool m_statsApplied{false};
+
+    void InitUI();
+    void UpdateUI();
     
 };

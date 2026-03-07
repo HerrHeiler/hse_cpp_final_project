@@ -1,27 +1,40 @@
 #include "Game.hpp"
-#include "MainMenuState.hpp" 
+#include "MainMenuState.hpp"
+#include "World.hpp"
 
+Game::Game() 
+    : window(sf::VideoMode(sf::Vector2u{800u, 600u}), "Average HSE Student Routine")
+{
+    window.setFramerateLimit(60);
 
-Game::Game() : window(sf::VideoMode(sf::Vector2u{800u, 600u}), "Average HSE Student Routine") {
-    //start menu
-    stateManager.Push(std::make_unique<MainMenuState>(stateManager));
+    resourceManager.LoadFont("default");
+    resourceManager.LoadTexture("corridor");
+    resourceManager.LoadTexture("student");
+
+    student = new Student(resourceManager.GetTexture("student"));
+
+    stateManager.Push(std::make_unique<MainMenuState>(
+        stateManager,
+        resourceManager,
+        *student
+    ));
+}
+
+Game::~Game() {
+    delete student;
 }
 
 void Game::Run() {
-
     sf::Clock clock; 
 
     while (window.isOpen()) {
-
-        sf::Time dt = clock.restart(); 
+        float dt = clock.restart().asSeconds(); 
 
         ProcessEvents();
         Update(dt);
         Render();
     }
 }
-
-
 
 void Game::ProcessEvents() {
     while (auto eventOpt = window.pollEvent()) {
@@ -33,15 +46,12 @@ void Game::ProcessEvents() {
     }
 }
 
-
-
-void Game::Update(sf::Time dt) {
+void Game::Update(float dt) {
     stateManager.Update(dt);
 }
 
-
-
 void Game::Render() {
+    window.clear();
     stateManager.Render(window);
     window.display();
 }
