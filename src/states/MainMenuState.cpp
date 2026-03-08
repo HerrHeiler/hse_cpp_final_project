@@ -9,7 +9,7 @@ MainMenuState::MainMenuState(StateManager& sm, ResourceManager& rm, Student& st)
     : stateManager(sm)
     , resourceManager(rm)
     , student(st)
-    , m_text(resourceManager.GetFont("default"), "Press Enter to start", 30)
+    , m_text(resourceManager.GetFont("default"), "Press Enter to start\na new wonderful day!", 30)
 {
     sf::FloatRect bounds = m_text.getLocalBounds();
     

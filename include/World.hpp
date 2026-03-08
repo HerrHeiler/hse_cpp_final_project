@@ -40,4 +40,5 @@ private:
     std::optional<sf::Text> m_energyText;
     std::optional<sf::Text> m_knowledgeText;
     std::optional<sf::Text> m_mental_stateText;
+    std::optional<sf::Text> m_timeText;
 };

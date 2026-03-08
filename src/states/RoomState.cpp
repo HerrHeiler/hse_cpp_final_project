@@ -1,6 +1,7 @@
 #include "RoomState.hpp"
 #include <SFML/Window/Event.hpp>
 #include <cstdlib>
+#include "MainMenuState.hpp"
 
 RoomState::RoomState(StateManager& stateManager, ResourceManager& resources, RoomType type, Student& student) 
     : manager(stateManager)
@@ -12,44 +13,93 @@ RoomState::RoomState(StateManager& stateManager, ResourceManager& resources, Roo
     , m_glitchTimer(0.f)
     , m_glitchDuration(2.f)
     , m_statsApplied(false)
+    , m_showConfirmation(false)
 {
-    m_title.emplace(resources.GetFont("default"), "", 30);
-    m_hint.emplace(resources.GetFont("default"), "Press ESC to return to corridor", 16);
+    m_title.emplace(resources.GetFont("default"), "", 24);
+    m_hint.emplace(resources.GetFont("default"), "Press ESC to return to corridor", 14);
     m_secretHint.emplace(resources.GetFont("default"), "", 15);
     m_achievement.emplace(resources.GetFont("default"), "ACHIEVEMENT UNLOCKED:\nDAREDEVIL!", 18);
+    m_confirmText.emplace(resources.GetFont("default"), "Listen to lecture?\n(+50 Knowledge, -30 Energy)\n\nPress ENTER to confirm", 20);
 
-    sf::Vector2u texSize = resources.GetTexture("student").getSize();
+    if (type == RoomType::Lecture) {
+        try {
+            m_background.setTexture(resources.GetTexture("lecture_bg"), true); 
+        } catch (const std::exception& e) {
+            m_background.setTexture(resources.GetTexture("student"), true);
+        }
+    } else {
+        m_background.setTexture(resources.GetTexture("student"), true);
+    }
+
+    sf::Vector2u texSize = m_background.getTexture().getSize();
     m_background.setScale({800.0f / texSize.x, 600.0f / texSize.y});
-    m_background.setColor(sf::Color(100, 100, 100)); 
+
+    if (type != RoomType::Lecture) m_background.setColor(sf::Color(100, 100, 100)); 
+    
 
     std::string roomName = "Unknown Room";
-    if (type == RoomType::Home) roomName = "Welcome Home!";
-    else if (type == RoomType::Lecture) {
+    if (type == RoomType::Home) {
+        roomName = "Welcome Home!";
+        m_hint->setString("Press ESC to return\nPress SPACE to sleep (End Day)");
+    } else if (type == RoomType::Lecture) {
         roomName = "OH! CALCULUS is awesome :)";
+
+        m_lectureZone = sf::FloatRect({300.f, 200.f}, {200.f, 150.f});
+
         m_hint->setString("Press ESC to return");
+
         m_secretHint->setString("psst... press 'f' to use phone");
-        m_secretHint->setFillColor(sf::Color(120, 120, 120)); 
-        m_secretHint->setPosition({10.f, 570.f});
+        m_secretHint->setFillColor(sf::Color::Black); // Сделали черным
+        sf::FloatRect shBounds = m_secretHint->getLocalBounds();
+        m_secretHint->setOrigin({shBounds.position.x + shBounds.size.x / 2.f, shBounds.position.y + shBounds.size.y / 2.f});
+        m_secretHint->setPosition({400.f, 570.f}); 
     } 
     else if (type == RoomType::Seminar) roomName = "Try to work, golden fish!";
     else if (type == RoomType::Cafeteria) roomName = "Yummy room";
 
     m_title->setString(roomName);
     m_title->setFillColor(sf::Color::White);
-    m_title->setPosition({50.f, 50.f}); 
+    m_title->setPosition({10.f, 10.f}); 
 
     m_hint->setFillColor(sf::Color::Yellow);
-    m_hint->setPosition({50.f, 120.f});
+    m_hint->setPosition({10.f, 45.f});
+
+    sf::Color panelColor(71, 74, 80);
+    m_infoBox.setFillColor(panelColor);
+    m_infoBox.setPosition({0.f, 0.f}); 
+    
+    float titleW = m_title->getGlobalBounds().size.x;
+    float hintW = m_hint->getGlobalBounds().size.x;
+
+    float boxHeight = (currentRoom == RoomType::Home) ? 100.f : 70.f;
+    m_infoBox.setSize({std::max(titleW, hintW) + 20.f, boxHeight}); 
+
+
+    m_statsBox.setFillColor(panelColor);
+    m_statsBox.setPosition({630.f, 0.f}); 
+    m_statsBox.setSize({170.f, 115.f});
+
 
     m_achievement->setFillColor(sf::Color::Red);
-    m_achievement->setPosition({450.f, 20.f});
+    m_achievement->setPosition({290.f, 20.f});
 
     sf::FloatRect textBounds = m_achievement->getGlobalBounds();
     m_achievementBox.setSize({textBounds.size.x + 20.f, textBounds.size.y + 20.f}); 
     m_achievementBox.setFillColor(sf::Color::Black);
     m_achievementBox.setOutlineColor(sf::Color::Red);
     m_achievementBox.setOutlineThickness(2.f);
-    m_achievementBox.setPosition({textBounds.position.x - 10.f, textBounds.position.y - 10.f});
+    m_achievementBox.setPosition({textBounds.position.x - 5.f, textBounds.position.y - 5.f});
+
+    m_confirmBox.setSize({400.f, 200.f});
+    m_confirmBox.setFillColor(sf::Color(0, 0, 0, 230));
+    m_confirmBox.setOutlineColor(sf::Color::White);
+    m_confirmBox.setOutlineThickness(2.f);
+    m_confirmBox.setOrigin({200.f, 100.f});
+    m_confirmBox.setPosition({400.f, 300.f});
+
+    sf::FloatRect confirmBounds = m_confirmText->getLocalBounds();
+    m_confirmText->setOrigin({confirmBounds.size.x / 2.f, confirmBounds.size.y / 2.f});
+    m_confirmText->setPosition({400.f, 300.f});
 
     m_student.UpdateEnvironment(currentRoom, 1.0f);
     m_statsApplied = true;
@@ -62,10 +112,30 @@ RoomState::RoomState(StateManager& stateManager, ResourceManager& resources, Roo
 
 void RoomState::HandleEvent(const sf::Event& event) {
     if (const auto* keyEvent = event.getIf<sf::Event::KeyPressed>()) {
+
+        if (m_showConfirmation) {
+            if (keyEvent->code == sf::Keyboard::Key::Enter) {
+                m_student.ModifyStats(-30.f, 50.f, -10.f); 
+                m_student.AddTime(80.f); 
+                m_showConfirmation = false;
+            } 
+            else if (keyEvent->code == sf::Keyboard::Key::Escape) {
+                m_showConfirmation = false;
+            }
+            return; 
+        }
+
+
         if (!m_isGlitchActive && keyEvent->code == sf::Keyboard::Key::Escape) {
             manager.Pop(); 
         }
-        
+        if (currentRoom == RoomType::Lecture && keyEvent->code == sf::Keyboard::Key::E) {
+            if (m_student.GetBounds().findIntersection(m_lectureZone).has_value()) {
+                if (m_student.GetEnergy() > 0.f) {
+                    m_showConfirmation = true;
+                }
+            }
+        }
         if (currentRoom == RoomType::Lecture && keyEvent->code == sf::Keyboard::Key::F) {
             if (!m_isGlitchActive) {
                 m_isGlitchActive = true;
@@ -76,13 +146,41 @@ void RoomState::HandleEvent(const sf::Event& event) {
                 m_background.setScale({800.0f / cSize.x, 600.0f / cSize.y});
             }
         }
+
+
+
+        if (currentRoom == RoomType::Home && keyEvent->code == sf::Keyboard::Key::Space) {
+            m_student.ResetStats();
+            manager.Change(std::make_unique<MainMenuState>(manager, resourceManager, m_student)); 
+            return;
+        }
     }
 }
 
 void RoomState::Update(float dt) {
+    if (m_showConfirmation) return;
     m_student.Update(dt);
 
     UpdateUI();
+
+
+    if (currentRoom == RoomType::Lecture && m_hint.has_value()) {
+        if (m_student.GetBounds().findIntersection(m_lectureZone).has_value()) {
+            if (m_student.GetEnergy() > 0.f) {
+                m_hint->setString("Press 'E' to listen to lecture");
+            } else {
+                m_hint->setString("You are too tired to listen..."); 
+            }
+        } else {
+            m_hint->setString("Press ESC to return");
+        }
+
+        float titleW = m_title->getGlobalBounds().size.x;
+        float hintW = m_hint->getGlobalBounds().size.x;
+        m_infoBox.setSize({std::max(titleW, hintW) + 20.f, 70.f});
+    }
+
+
 
     if (m_isGlitchActive) {
         m_glitchTimer += dt;
@@ -96,10 +194,19 @@ void RoomState::Update(float dt) {
 
         if (m_glitchTimer > 2.0f) {
             m_isGlitchActive = false;
-            m_background.setTexture(resourceManager.GetTexture("student"));
-            sf::Vector2u sSize = resourceManager.GetTexture("student").getSize();
+            if (currentRoom == RoomType::Lecture) {
+                 try { m_background.setTexture(resourceManager.GetTexture("lecture_bg")); } 
+                 catch(...) { m_background.setTexture(resourceManager.GetTexture("student")); }
+            } else {
+                 m_background.setTexture(resourceManager.GetTexture("student"));
+            }
+            
+            sf::Vector2u sSize = m_background.getTexture().getSize();
             m_background.setScale({800.0f / sSize.x, 600.0f / sSize.y});
-            m_background.setColor(sf::Color(100, 100, 100)); 
+            
+            if (currentRoom != RoomType::Lecture) m_background.setColor(sf::Color(100, 100, 100)); 
+            else m_background.setColor(sf::Color::White); 
+
             m_background.setPosition({0.f, 0.f});
         }
     }
@@ -124,35 +231,53 @@ void RoomState::Render(sf::RenderWindow& window) {
     window.draw(m_background);
 
     if (!m_isGlitchActive) {
+        window.draw(m_infoBox);
         if (m_title.has_value()) window.draw(m_title.value());
         if (m_hint.has_value()) window.draw(m_hint.value());
-        if (m_secretHint.has_value()) window.draw(m_secretHint.value());
+        if (currentRoom == RoomType::Lecture && m_secretHint.has_value()) {
+            window.draw(m_secretHint.value());
+        }
+
+        window.draw(m_statsBox);
+        if (m_energyUI.has_value()) window.draw(m_energyUI.value());
+        if (m_knowledgeUI.has_value()) window.draw(m_knowledgeUI.value());
+        if (m_mentalUI.has_value()) window.draw(m_mentalUI.value());
+        if (m_timeUI.has_value()) window.draw(m_timeUI.value());
+
     }
     
     m_student.Render(window);
 
-    if (m_energyUI.has_value()) window.draw(m_energyUI.value());
-    if (m_knowledgeUI.has_value()) window.draw(m_knowledgeUI.value());
-    if (m_mentalUI.has_value()) window.draw(m_mentalUI.value());
-
+    
     if (m_isGlitchActive) {
         window.draw(m_achievementBox);
         if (m_achievement.has_value()) window.draw(m_achievement.value());
     }
+
+    if (m_showConfirmation) {
+        window.draw(m_confirmBox);
+        if (m_confirmText.has_value()) window.draw(m_confirmText.value());
+    }
+
+    
 }
 
 void RoomState::InitUI() {
     m_energyUI.emplace(resourceManager.GetFont("default"), "Energy: 100", 16);
     m_energyUI->setFillColor(sf::Color::White);
-    m_energyUI->setPosition({650.f, 10.f});
+    m_energyUI->setPosition({640.f, 10.f});
 
     m_knowledgeUI.emplace(resourceManager.GetFont("default"), "Knowledge: 0", 16);
     m_knowledgeUI->setFillColor(sf::Color::Yellow);
-    m_knowledgeUI->setPosition({650.f, 35.f});
+    m_knowledgeUI->setPosition({640.f, 35.f});
 
     m_mentalUI.emplace(resourceManager.GetFont("default"), "Mental state: 50", 16);
     m_mentalUI->setFillColor(sf::Color(0, 200, 0));
-    m_mentalUI->setPosition({650.f, 60.f});
+    m_mentalUI->setPosition({640.f, 60.f});
+
+    m_timeUI.emplace(resourceManager.GetFont("default"), "Time: 09:30", 16);
+    m_timeUI->setFillColor(sf::Color::Cyan);
+    m_timeUI->setPosition({640.f, 85.f});
 }
 
 void RoomState::UpdateUI() {
@@ -164,4 +289,8 @@ void RoomState::UpdateUI() {
     
     if (m_mentalUI.has_value())
         m_mentalUI->setString("Mental state: " + std::to_string(static_cast<int>(m_student.GetMentalState())));
-}
+
+    if (m_timeUI.has_value()) {
+        m_timeUI->setString("Time: " + m_student.GetTimeString());
+    }
+   }

@@ -10,7 +10,9 @@ void ResourceManager::LoadTexture(const std::string& id) {
         path = "assets/textures/corridor.png";
     } else if (id == "student") {
         path = "assets/textures/student.png";
-    } else {
+    } else if (id == "lecture_bg") {
+        path = "assets/textures/lecture.png";
+    }else {
         throw std::runtime_error("Error: incorrect texture id: " + id);
     }
 

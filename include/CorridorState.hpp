@@ -18,8 +18,6 @@ public:
 
 private:
     StateManager& manager;
-    //ResourceManager m_resources;
     std::unique_ptr<World> m_world;
-
     sf::Text m_instruction;
 };

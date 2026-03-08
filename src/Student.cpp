@@ -84,3 +84,25 @@ sf::FloatRect Student::GetBounds() const {
 }
 
 void Student::HandleEvent(const sf::Event& event) {}
+
+
+void Student::AddTime(float minutes) {
+    m_timeMinutes += minutes;
+}
+
+std::string Student::GetTimeString() const {
+    int totalMins = static_cast<int>(m_timeMinutes);
+    int hours = (totalMins / 60) % 24;
+    int mins = totalMins % 60;
+    
+    std::string hStr = (hours < 10 ? "0" : "") + std::to_string(hours);
+    std::string mStr = (mins < 10 ? "0" : "") + std::to_string(mins);
+    
+    return hStr + ":" + mStr;
+}
+
+
+void Student::ResetStats() {
+    energy = 100.f;          
+    m_timeMinutes = 570.f;   
+}

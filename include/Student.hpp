@@ -27,6 +27,11 @@ public:
 
     void UpdateEnvironment(RoomType type, float dt);
 
+    void AddTime(float minutes);
+    std::string GetTimeString() const;
+
+    void ResetStats();
+
 private:
     sf::Sprite sprite;
     float speed;
@@ -34,4 +39,6 @@ private:
     float mental_state;
     float energy;
     float knowledge;
+
+    float m_timeMinutes{570.f};
 };

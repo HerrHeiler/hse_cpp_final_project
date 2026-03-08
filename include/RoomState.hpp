@@ -25,6 +25,10 @@ private:
     std::optional<sf::Text> m_title;       
     std::optional<sf::Text> m_hint;  
     std::optional<sf::Text> m_secretHint;
+    std::optional<sf::Text> m_timeUI;
+
+    sf::RectangleShape m_infoBox;  
+    sf::RectangleShape m_statsBox;
     
     bool m_isGlitchActive; 
     float m_glitchTimer{0.f};
@@ -37,6 +41,12 @@ private:
     std::optional<sf::Text> m_mentalUI;
     
     bool m_statsApplied{false};
+
+    sf::FloatRect m_lectureZone;          
+    bool m_showConfirmation{false};        
+    
+    sf::RectangleShape m_confirmBox;       
+    std::optional<sf::Text> m_confirmText; 
 
     void InitUI();
     void UpdateUI();

@@ -4,7 +4,7 @@
 CorridorState::CorridorState(StateManager& sm, ResourceManager& rm, Student& student) 
     : manager(sm)
     , m_world(std::make_unique<World>(rm, sm, student)) 
-    , m_instruction(m_resources.GetFont("default"), "Press 'E' to interact with items", 16)
+    , m_instruction(rm.GetFont("default"), "Press 'E' to interact with items", 16)
 {
     sf::FloatRect bounds = m_instruction.getLocalBounds();
     m_instruction.setOrigin({bounds.position.x + bounds.size.x / 2.0f, 
@@ -17,15 +17,15 @@ CorridorState::CorridorState(StateManager& sm, ResourceManager& rm, Student& stu
 }
 
 void CorridorState::HandleEvent(const sf::Event& event) {
-    m_world.HandleEvent(event);
+    m_world->HandleEvent(event);
 }
 
 void CorridorState::Update(float dt) {
-    m_world.Update(dt.asSeconds());
+    m_world->Update(dt);
 }
 
 void CorridorState::Render(sf::RenderWindow& window) {
     window.clear();
-    m_world.Render(window);
+    m_world->Render(window);
     window.draw(m_instruction);
 }

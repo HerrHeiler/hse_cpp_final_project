@@ -32,6 +32,10 @@ void World::InitUI() {
     m_mental_stateText.emplace(*m_uiFont, "Mental State: 50", 18);
     m_mental_stateText->setFillColor(sf::Color(0, 200, 0));
     m_mental_stateText->setPosition({12.f, 60.f});
+
+    m_timeText.emplace(*m_uiFont, "Time: 09:30", 22);
+    m_timeText->setFillColor(sf::Color::Cyan);
+    m_timeText->setPosition({350.f, 10.f}); 
 }
 
 void World::UpdateUI() {
@@ -43,6 +47,10 @@ void World::UpdateUI() {
     
     if (m_mental_stateText.has_value())
         m_mental_stateText->setString("Mental State: " + std::to_string(static_cast<int>(student.GetMentalState())));
+    
+        if (m_timeText.has_value()) {
+        m_timeText->setString("Time: " + student.GetTimeString());
+    }
 }
 
 void World::LoadDoors() {
@@ -83,6 +91,7 @@ void World::Render(sf::RenderWindow& window) {
     if (m_energyText.has_value()) window.draw(m_energyText.value());
     if (m_knowledgeText.has_value()) window.draw(m_knowledgeText.value());
     if (m_mental_stateText.has_value()) window.draw(m_mental_stateText.value());
+    if (m_timeText.has_value()) window.draw(m_timeText.value()); 
 }
 
 void World::CheckDoorCollision(const sf::FloatRect& studentBounds, bool ePressed) {
