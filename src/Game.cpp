@@ -10,6 +10,10 @@ Game::Game()
     resourceManager.LoadFont("default");
     resourceManager.LoadTexture("corridor");
     resourceManager.LoadTexture("student");
+    resourceManager.LoadTexture("lecture_bg");
+    resourceManager.LoadTexture("home_room");
+    resourceManager.LoadTexture("seminar_room");
+    resourceManager.LoadTexture("cafeteria_room");
 
     student = new Student(resourceManager.GetTexture("student"));
 

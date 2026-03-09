@@ -28,25 +28,25 @@ void Student::UpdateEnvironment(RoomType type, float dt) {
 
     switch (type) {
         case RoomType::Lecture:
-            dK = 5.0f * dt; 
-            dE = -5.0f * dt;
+            dK = 3.0f * dt; 
+            dE = -2.0f * dt;
             dM = -1.0f * dt;
             break;
         case RoomType::Seminar:
-            dK = 35.0f * dt;
-            dE = -25.0f * dt;
+            dK = 5.0f * dt;
+            dE = -4.0f * dt;
             break;
         case RoomType::Home:
-            dE = 10.0f * dt;
-            dM = 15.0f * dt;
+            dE = 3.0f * dt;
+            dM = 2.0f * dt;
             break;
         case RoomType::Cafeteria:
-            dE = 12.0f * dt;
-            dM = -1.0f * dt;
+            dE = 4.0f * dt;
+            dM = -0.3f * dt;
             break;
         case RoomType::Corridor:
         default:
-            dE = -0.5f * dt;
+            dE = -0.1f * dt;
             break;
     }
 

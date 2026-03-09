@@ -56,10 +56,11 @@ Build
 git clone https://github.com/.../hse_cpp_final_project.git
 cd hse_cpp_final_project
 
+rm -rf build
 mkdir build
 cd build
 
-cmake .. -DCMAKE_POLICY_DEFAULT_CMP0135=NEW
+cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -S .. -B .
 cmake --build .
 ```
 Run
