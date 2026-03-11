@@ -9,6 +9,7 @@
 #include <variant>
 #include <memory>
 #include <string>
+#include <functional>
 
 class RoomState : public State {
 public:

@@ -1,6 +1,5 @@
 #include "Game.hpp"
 #include "MainMenuState.hpp"
-#include "World.hpp"
 
 Game::Game() 
     : window(sf::VideoMode(sf::Vector2u{800u, 600u}), "Average HSE Student Routine")

@@ -1,9 +1,9 @@
 #include "MainMenuState.hpp"
-//#include "CorridorState.hpp"
+#include "CorridorState.hpp"
 #include <SFML/Window/Event.hpp>
 #include "ResourceManager.hpp"
 #include "Student.hpp"
-#include "World.hpp"
+
 
 MainMenuState::MainMenuState(StateManager& sm, ResourceManager& rm, Student& st)
     : stateManager(sm)
@@ -25,13 +25,12 @@ void MainMenuState::HandleEvent(const sf::Event& event) {
     // on enter change to corridor
     if (const auto* keyPressed = event.getIf<sf::Event::KeyPressed>()) {
         if (keyPressed->code == sf::Keyboard::Key::Enter) {
-            stateManager.Change(std::make_unique<World>(resourceManager, stateManager, student));
+            stateManager.Change(std::make_unique<CorridorState>(stateManager, resourceManager, student));
         }
     }
 }
 
 void MainMenuState::Update(float dt) {
-    // todo
 }
 
 void MainMenuState::Render(sf::RenderWindow& window) {

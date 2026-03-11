@@ -61,12 +61,11 @@ RoomState::RoomState(StateManager& stateManager, ResourceManager& resources, Roo
     sf::Vector2u texSize = m_background.getTexture().getSize();
     m_background.setScale({800.0f / texSize.x, 600.0f / texSize.y});
 
-    //if (type != RoomType::Lecture) m_background.setColor(sf::Color(100, 100, 100)); 
     
 
     if (type == RoomType::Home) {
         roomName = "Welcome Home!";
-        m_hint->setString("Press ESC to return\nPress SPACE to sleep (End Day)");
+        m_hint->setString("Press ESC to return\nPress SPACE to sleep (End Day)\nPress 'P' to pray (+5 Mental, 15 min)");
     } else if (type == RoomType::Lecture) {
         roomName = "OH! CALCULUS is awesome :)";
 
@@ -75,7 +74,7 @@ RoomState::RoomState(StateManager& stateManager, ResourceManager& resources, Roo
         m_hint->setString("Press ESC to return\nPress SPACE to study\n(+Knowledge, -Energy)");
 
         m_secretHint->setString("psst... press 'f' to use phone");
-        m_secretHint->setFillColor(sf::Color::Black); // Сделали черным
+        m_secretHint->setFillColor(sf::Color::Black); 
         sf::FloatRect shBounds = m_secretHint->getLocalBounds();
         m_secretHint->setOrigin({shBounds.position.x + shBounds.size.x / 2.f, shBounds.position.y + shBounds.size.y / 2.f});
         m_secretHint->setPosition({400.f, 570.f}); 
@@ -184,6 +183,11 @@ void RoomState::HandleEvent(const sf::Event& event) {
             m_student.ResetStats();
             manager.Change(std::make_unique<MainMenuState>(manager, resourceManager, m_student)); 
             return;
+        }
+
+        if (currentRoom == RoomType::Home && keyEvent->code == sf::Keyboard::Key::P) {
+            m_student.ModifyStats(0.f, 0.f, 5.f); 
+            m_student.AddTime(15.f);              
         }
     }
     if (const auto* keyEvent = event.getIf<sf::Event::KeyReleased>()) {

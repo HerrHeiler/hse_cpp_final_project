@@ -23,7 +23,9 @@ struct Door {
           text(font, l, 16)
     {
         shape.setPosition(b.position);
-        shape.setFillColor(sf::Color::Blue);
+        shape.setFillColor(sf::Color::Black);
+        shape.setOutlineColor(sf::Color::White);
+        shape.setOutlineThickness(2.f);
         
         text.setFillColor(sf::Color::White);
         sf::FloatRect tb = text.getLocalBounds();
