@@ -8,17 +8,18 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
 #for mac os
-# set(SFML_DIR "/opt/homebrew/opt/sfml/lib/cmake/SFML")
-# find_package(SFML 3 COMPONENTS Window Graphics System REQUIRED)
+set(SFML_DIR "/opt/homebrew/opt/sfml/lib/cmake/SFML")
+list(APPEND CMAKE_PREFIX_PATH "/opt/homebrew")
+find_package(SFML 3 COMPONENTS Window Graphics System REQUIRED)
 
 
 #for linux 
-include(FetchContent)
-FetchContent_Declare(SFML
-    GIT_REPOSITORY https://github.com/SFML/SFML.git
-    GIT_TAG 3.0.0
-)
-FetchContent_MakeAvailable(SFML)
+# include(FetchContent)
+# FetchContent_Declare(SFML
+#     GIT_REPOSITORY https://github.com/SFML/SFML.git
+#     GIT_TAG 3.0.0
+# )
+# FetchContent_MakeAvailable(SFML)
 
 
 

@@ -1,11 +1,12 @@
 #include "RoomState.hpp"
+#include "RoomConfig.hpp"
 #include <SFML/Window/Event.hpp>
 #include <cstdlib>
 #include <functional>
 #include <iostream>
 #include "MainMenuState.hpp"
 
-RoomState::RoomState(StateManager& stateManager, ResourceManager& resources, RoomType type, Student& student) 
+RoomState::RoomState(StateManager& stateManager, ResourceManager& resources, RoomType type, Student& student)
     : manager(stateManager)
     , currentRoom(type)
     , resourceManager(resources)
@@ -24,100 +25,124 @@ RoomState::RoomState(StateManager& stateManager, ResourceManager& resources, Roo
     m_energyUI.emplace(resources.GetFont("default"), "Energy: 100", 16);
     m_knowledgeUI.emplace(resources.GetFont("default"), "Knowledge: 0", 16);
     m_mentalUI.emplace(resources.GetFont("default"), "Mental State: 50", 16);
-    m_confirmText.emplace(resources.GetFont("default"), "Listen to lecture?\n(+50 Knowledge, -30 Energy)\n\nPress ENTER to confirm", 20);
-    m_achievement.emplace(resources.GetFont("default"), "ACHIEVEMENT UNLOCKED:\nDAREDEVIL!", 18);
+    m_confirmText.emplace(
+        resources.GetFont("default"),
+        "Listen to lecture?\n(+50 Knowledge, -30 Energy)\n\nPress ENTER to confirm",
+        20
+    );
+    m_achievement.emplace(
+        resources.GetFont("default"),
+        "ACHIEVEMENT UNLOCKED:\nDAREDEVIL!",
+        18
+    );
 
-    std::string textureId = "student";
+    const auto config = getRoomConfig(type);
+    const std::string textureId = std::string(getTextureIdForRoom(type));
+
     std::string roomName = "Unknown Room";
-    
-    if (type == RoomType::Lecture) {
-        try {
-            m_background.setTexture(resources.GetTexture("lecture_bg"), true); 
-        } catch (const std::exception& e) {
-            m_background.setTexture(resources.GetTexture("student"), true);
-        }
-    } else if (type == RoomType::Home) {
-        try {
-            m_background.setTexture(resources.GetTexture("home_room"), true); 
-        } catch (const std::exception& e) {
-            m_background.setTexture(resources.GetTexture("student"), true);
-        }
-    } else if (type == RoomType::Cafeteria) {
-        try {
-            m_background.setTexture(resources.GetTexture("cafeteria_room"), true); 
-        } catch (const std::exception& e) {
-            m_background.setTexture(resources.GetTexture("student"), true);
-        }
-    } else if (type == RoomType::Seminar) {
-        try {
-            m_background.setTexture(resources.GetTexture("seminar_room"), true); 
-        } catch (const std::exception& e) {
-            m_background.setTexture(resources.GetTexture("student"), true);
-        }
-    } else {
-        m_background.setTexture(resources.GetTexture("student"), true);
+
+
+    try {
+        const sf::Texture& tex = resources.GetTexture(textureId);
+        m_roomTexture = std::make_unique<sf::Texture>(tex);
+        m_background.setTexture(*m_roomTexture, true);
+    } catch (const std::exception& e) {
+        std::cerr << "[RoomState] Warning: " << e.what()
+                  << ", fallback to 'student' texture\n";
+        const sf::Texture& fallback = resources.GetTexture("student");
+        m_roomTexture = std::make_unique<sf::Texture>(fallback);
+        m_background.setTexture(*m_roomTexture, true);
     }
 
-    sf::Vector2u texSize = m_background.getTexture().getSize();
-    m_background.setScale({800.0f / texSize.x, 600.0f / texSize.y});
-
-    
+    sf::Texture bgTex = m_background.getTexture();
+    sf::Vector2u texSize = bgTex.getSize();
+    if (texSize.x > 0 && texSize.y > 0) {
+        m_background.setScale(sf::Vector2f(
+            800.f / texSize.x,
+            600.f / texSize.y
+        ));
+    }
 
     if (type == RoomType::Home) {
         roomName = "Welcome Home!";
-        m_hint->setString("Press ESC to return\nPress SPACE to sleep (End Day)\nPress 'P' to pray (+5 Mental, 15 min)");
+        m_hint->setString(
+            "Press ESC to return\n"
+            "Press SPACE to sleep (End Day)\n"
+            "Press 'P' to pray (+5 Mental, 15 min)"
+        );
     } else if (type == RoomType::Lecture) {
         roomName = "OH! CALCULUS is awesome :)";
 
-        m_lectureZone = sf::FloatRect({300.f, 200.f}, {200.f, 150.f});
+        m_lectureZone = sf::FloatRect(
+            sf::Vector2f(300.f, 200.f),
+            sf::Vector2f(200.f, 150.f)
+        );
 
-        m_hint->setString("Press ESC to return\nPress SPACE to study\n(+Knowledge, -Energy)");
+        m_hint->setString(
+            "Press ESC to return\n"
+            "Press SPACE to study\n"
+            "(+Knowledge, -Energy)"
+        );
 
         m_secretHint->setString("psst... press 'f' to use phone");
-        m_secretHint->setFillColor(sf::Color::Black); 
+        m_secretHint->setFillColor(sf::Color::Black);
         sf::FloatRect shBounds = m_secretHint->getLocalBounds();
-        m_secretHint->setOrigin({shBounds.position.x + shBounds.size.x / 2.f, shBounds.position.y + shBounds.size.y / 2.f});
-        m_secretHint->setPosition({400.f, 570.f}); 
+        m_secretHint->setOrigin(sf::Vector2f(
+            shBounds.position.x + shBounds.size.x / 2.f,
+            shBounds.position.y + shBounds.size.y / 2.f
+        ));
+        m_secretHint->setPosition({400.f, 570.f});
     } else if (type == RoomType::Seminar) {
         roomName = "Try to work, golden fish!";
-        m_hint->setString("Press ESC to return\nPress and hold SPACE to study\n(+Knowledge, --Energy)");
+        m_hint->setString(
+            "Press ESC to return\n"
+            "Press and hold SPACE to study\n"
+            "(+Knowledge, --Energy)"
+        );
     } else if (type == RoomType::Cafeteria) {
         roomName = "Yummy room";
-        m_hint->setString("Press ESC to return\nPress SPACE to eat\n(+Energy, -Mental)");
+        m_hint->setString(
+            "Press ESC to return\n"
+            "Press SPACE to eat\n"
+            "(+Energy, -Mental)"
+        );
     }
 
     m_title->setString(roomName);
     m_title->setFillColor(sf::Color::White);
-    m_title->setPosition({10.f, 10.f}); 
+    m_title->setPosition({10.f, 10.f});
 
     m_hint->setFillColor(sf::Color::Yellow);
     m_hint->setPosition({10.f, 45.f});
 
-    float statsBoxY = m_hint->getPosition().y + m_hint->getGlobalBounds().size.y + 15.f;
+
+    sf::FloatRect titleBounds = m_title->getGlobalBounds();
+    sf::FloatRect hintBounds  = m_hint->getGlobalBounds();
+
+    float boxWidth  = std::max(titleBounds.size.x, hintBounds.size.x) + 30.f;
+    float boxHeight = titleBounds.size.y + hintBounds.size.y + 35.f;
 
     sf::Color panelColor(71, 74, 80);
     m_infoBox.setFillColor(panelColor);
-    m_infoBox.setPosition({0.f, 0.f}); 
-    
-    sf::FloatRect titleBounds = m_title->getGlobalBounds();
-    sf::FloatRect hintBounds = m_hint->getGlobalBounds();
-    float boxWidth = std::max(titleBounds.size.x, hintBounds.size.x) + 30.f;
-    float boxHeight = titleBounds.size.y + hintBounds.size.y + 35.f;
+    m_infoBox.setPosition({0.f, 0.f});
     m_infoBox.setSize({boxWidth, boxHeight});
 
     m_statsBox.setFillColor(panelColor);
-    m_statsBox.setPosition({0.f, calculateStatsBoxY()}); 
+    m_statsBox.setPosition({0.f, calculateStatsBoxY()});
     m_statsBox.setSize({170.f, 115.f});
 
     m_achievement->setFillColor(sf::Color::Red);
     m_achievement->setPosition({290.f, 20.f});
 
     sf::FloatRect textBounds = m_achievement->getGlobalBounds();
-    m_achievementBox.setSize({textBounds.size.x + 20.f, textBounds.size.y + 20.f}); 
+    m_achievementBox.setSize({textBounds.size.x + 20.f, textBounds.size.y + 20.f});
     m_achievementBox.setFillColor(sf::Color::Black);
     m_achievementBox.setOutlineColor(sf::Color::Red);
     m_achievementBox.setOutlineThickness(2.f);
-    m_achievementBox.setPosition({textBounds.position.x - 5.f, textBounds.position.y - 5.f});
+    m_achievementBox.setPosition(
+        {textBounds.position.x - 5.f, textBounds.position.y - 5.f}
+    );
+
 
     m_confirmBox.setSize({400.f, 200.f});
     m_confirmBox.setFillColor(sf::Color(0, 0, 0, 230));
@@ -127,7 +152,10 @@ RoomState::RoomState(StateManager& stateManager, ResourceManager& resources, Roo
     m_confirmBox.setPosition({400.f, 300.f});
 
     sf::FloatRect confirmBounds = m_confirmText->getLocalBounds();
-    m_confirmText->setOrigin({confirmBounds.size.x / 2.f, confirmBounds.size.y / 2.f});
+    m_confirmText->setOrigin(sf::Vector2f(
+        confirmBounds.position.x + confirmBounds.size.x  / 2.f,
+        confirmBounds.position.y  + confirmBounds.size.y / 2.f
+    ));
     m_confirmText->setPosition({400.f, 300.f});
 
     m_student.UpdateEnvironment(currentRoom, 1.0f);
@@ -138,6 +166,7 @@ RoomState::RoomState(StateManager& stateManager, ResourceManager& resources, Roo
 
     m_student.SetPosition(400.f, 400.f);
 }
+
 
 void RoomState::HandleEvent(const sf::Event& event) {
     if (const auto* keyEvent = event.getIf<sf::Event::KeyPressed>()) {
@@ -358,22 +387,19 @@ void RoomState::UpdateUI() {
 
 
 std::string RoomState::getHintForRoom() const {
-    static const std::unordered_map<RoomType, std::string> hints = {
-        {RoomType::Home, "Press SPACE to rest (+Energy, +Mental)"},
-        {RoomType::Lecture, "Press SPACE to study (+Knowledge, -Energy)"},
-        {RoomType::Seminar, "Press SPACE to work hard (+Knowledge, --Energy)"},
-        {RoomType::Cafeteria, "Press SPACE to eat (+Energy, -Mental)"}
-    };
-    
-    auto it = hints.find(currentRoom);
-    return (it != hints.end()) ? it->second : "Press ESC to return";
+    const auto config = getRoomConfig(currentRoom);
+    return std::string(config.hint);
 }
 
 void RoomState::performRoomAction(float dt) {
-    m_student.UpdateEnvironment(currentRoom, dt);
+    RoomAction action = getRoomAction();
     
-    m_student.AddTime(dt * 60.0f);
-
+    std::visit([dt](auto&& func) {
+        if constexpr (std::is_invocable_v<decltype(func), float>) {
+            func(dt);
+        }
+    }, action);
+    
     m_actionTimer += dt;
     if (static_cast<int>(m_actionTimer * 10) % 2 == 0) {
         m_hint->setFillColor(sf::Color::White);
@@ -387,4 +413,18 @@ float RoomState::calculateStatsBoxY() const {
         return m_hint->getPosition().y + m_hint->getGlobalBounds().size.y + 15.f;
     }
     return 110.f;
+}
+
+RoomState::RoomAction RoomState::getRoomAction() const {
+    const auto config = getRoomConfig(currentRoom);
+    
+    return [this, config](float dt) {
+        m_student.ModifyStats(
+            config.energyMod * dt,
+            config.knowledgeMod * dt,
+            config.moodMod * dt
+        );
+        
+        m_student.AddTime(dt * 60.0f);
+    };
 }
