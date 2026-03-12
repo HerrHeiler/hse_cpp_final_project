@@ -9,7 +9,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 #for mac os
 # set(SFML_DIR "/opt/homebrew/opt/sfml/lib/cmake/SFML")
-# list(APPEND CMAKE_PREFIX_PATH "/opt/homebrew")
 # find_package(SFML 3 COMPONENTS Window Graphics System REQUIRED)
 
 
@@ -21,40 +20,65 @@ FetchContent_Declare(SFML
 )
 FetchContent_MakeAvailable(SFML)
 
-FetchContent_Declare(googletest
+include(FetchContent)
+FetchContent_Declare(
+    googletest
     GIT_REPOSITORY https://github.com/google/googletest.git
-    GIT_TAG release-1.12.1
+    GIT_TAG v1.14.0
 )
 FetchContent_MakeAvailable(googletest)
 
 include_directories(include)
 
-add_library(game_core STATIC
+add_executable(student-game 
+    src/main.cpp 
     src/Game.cpp 
     src/StateManager.cpp 
     src/states/MainMenuState.cpp 
+    src/states/RoomState.cpp 
     src/states/CorridorState.cpp
-    src/states/RoomState.cpp
     src/Student.cpp
     src/World.cpp
     src/ResourceManager.cpp
 )
 
-target_link_libraries(game_core PUBLIC SFML::Graphics SFML::Window SFML::System)
-target_include_directories(game_core PUBLIC include)
+target_include_directories(student-game PRIVATE include)
+target_link_libraries(student-game
+    PRIVATE
+        SFML::Graphics
+        SFML::Window
+        SFML::System
+)
 
-add_executable(student-game src/main.cpp)
-target_link_libraries(student-game PRIVATE game_core)
 
 enable_testing()
 
-add_executable(run_tests 
+add_executable(tests
     tests/test_state_manager.cpp
-    tests/test_world_rooms.cpp
     tests/test_world_time.cpp
+    tests/test_world_rooms.cpp
+
+    src/StateManager.cpp
+    src/Student.cpp
+    src/World.cpp
+    src/ResourceManager.cpp
+    src/states/RoomState.cpp
+    src/states/CorridorState.cpp
+    src/states/MainMenuState.cpp
 )
 
-target_link_libraries(run_tests PRIVATE game_core gtest_main)
+
+target_include_directories(tests PRIVATE include)
+target_link_libraries(tests PRIVATE 
+    SFML::Graphics 
+    SFML::Window 
+    SFML::System
+    GTest::gtest_main
+)
+
+target_compile_definitions(tests PRIVATE 
+    PROJECT_SOURCE_DIR="${CMAKE_SOURCE_DIR}"
+)
 
 include(GoogleTest)
-gtest_discover_tests(run_tests)
+gtest_discover_tests(tests)
