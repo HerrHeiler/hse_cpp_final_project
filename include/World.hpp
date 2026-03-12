@@ -41,4 +41,10 @@ private:
     std::optional<sf::Text> m_knowledgeText;
     std::optional<sf::Text> m_mental_stateText;
     std::optional<sf::Text> m_timeText;
+    
+    sf::RectangleShape m_deadInsideBox;
+    std::optional<sf::Text> m_deadInsideText;
+
+    sf::RectangleShape m_megamindBox;
+    std::optional<sf::Text> m_megamindText;
 };

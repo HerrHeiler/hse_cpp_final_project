@@ -53,6 +53,9 @@ private:
     sf::RectangleShape m_deadInsideBox;
     std::optional<sf::Text> m_deadInsideText;
     
+    sf::RectangleShape m_megamindBox;
+    std::optional<sf::Text> m_megamindText;
+    
     bool m_isGlitchActive; 
     float m_glitchTimer{0.f};
     float m_glitchDuration{2.f};

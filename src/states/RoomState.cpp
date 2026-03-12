@@ -354,6 +354,10 @@ void RoomState::Render(sf::RenderWindow& window) {
         if (m_deadInsideText.has_value()) window.draw(m_deadInsideText.value());
     }
 
+    if (m_student.GetKnowledge() >= 200.f) {
+        window.draw(m_megamindBox);
+        if (m_megamindText.has_value()) window.draw(m_megamindText.value());
+    }
     
 }
 
@@ -394,6 +398,16 @@ void RoomState::InitUI() {
     m_deadInsideBox.setOutlineThickness(2.f);
     m_deadInsideBox.setPosition({800.f - diBounds.size.x - 30.f, 600.f - diBounds.size.y - 30.f});
     m_deadInsideText->setPosition({800.f - diBounds.size.x - 20.f, 600.f - diBounds.size.y - 20.f});
+
+    m_megamindText.emplace(resourceManager.GetFont("default"), "ACHIEVEMENT UNLOCKED:\nMEGAMIND (Knowledge 200+)", 16);
+    m_megamindText->setFillColor(sf::Color(0, 255, 255)); 
+    sf::FloatRect mmBounds = m_megamindText->getLocalBounds();
+    m_megamindBox.setSize({mmBounds.size.x + 20.f, mmBounds.size.y + 20.f});
+    m_megamindBox.setFillColor(sf::Color(20, 20, 20, 230)); 
+    m_megamindBox.setOutlineColor(sf::Color(0, 255, 255)); 
+    m_megamindBox.setOutlineThickness(2.f);
+    m_megamindBox.setPosition({10.f, 600.f - mmBounds.size.y - 30.f});
+    m_megamindText->setPosition({20.f, 600.f - mmBounds.size.y - 20.f});
 }
 
 void RoomState::UpdateUI() {
