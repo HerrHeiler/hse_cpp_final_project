@@ -1,7 +1,7 @@
 #include "CorridorState.hpp"
 
 
-CorridorState::CorridorState(StateManager& sm, ResourceManager& rm, Student& student) 
+CorridorState::CorridorState(StateManager& sm, ResourceManager& rm, IStudent& student) 
     : manager(sm)
     , m_world(std::make_unique<World>(rm, sm, student)) 
     , m_instruction(rm.GetFont("default"), "Press 'E' to interact with items", 16)

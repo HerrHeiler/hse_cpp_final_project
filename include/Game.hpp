@@ -1,7 +1,9 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include "StateManager.hpp"
+#include "IStudent.hpp"
 #include "Student.hpp"
+#include "PetStudent.hpp"
 #include "ResourceManager.hpp"
 
 class Game {
@@ -13,7 +15,10 @@ private:
 
     StateManager stateManager;
     ResourceManager resourceManager;
-    Student* student{nullptr};
+    Student humanStudent;
+    PetStudent petStudent;
+
+    IStudent* student{nullptr};
 
     sf::RenderWindow window;
 

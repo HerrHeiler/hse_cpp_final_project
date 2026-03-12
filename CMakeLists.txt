@@ -36,10 +36,11 @@ add_executable(student-game
     src/StateManager.cpp 
     src/states/MainMenuState.cpp 
     src/states/RoomState.cpp 
-    src/Door.cpp
+    src/states/CorridorState.cpp 
     src/Student.cpp
     src/World.cpp
     src/ResourceManager.cpp
+    src/PetStudent.cpp
 )
 
 target_include_directories(student-game PRIVATE include)
