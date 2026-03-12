@@ -3,7 +3,7 @@
 #include <vector>
 #include <optional>
 #include <SFML/Graphics.hpp>
-
+#include <memory> 
 #include "State.hpp"
 #include "Student.hpp"
 #include "ResourceManager.hpp"
@@ -32,7 +32,7 @@ private:
     StateManager& manager;
     IStudent& student;
 
-    std::vector<Door> doors;
+    std::vector<std::shared_ptr<Door>> doors;
     sf::Sprite m_background;
     RoomType currentRoom;
 
