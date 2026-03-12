@@ -21,6 +21,7 @@ FetchContent_Declare(SFML
 )
 FetchContent_MakeAvailable(SFML)
 
+
 include(FetchContent)
 FetchContent_Declare(
     googletest
@@ -28,6 +29,7 @@ FetchContent_Declare(
     GIT_TAG v1.14.0
 )
 FetchContent_MakeAvailable(googletest)
+
 
 include_directories(include)
 
