@@ -30,7 +30,7 @@ For detailed design see `docs/architecture.md`.
 ### Dependencies
 
 - CMake ≥ 3.10  
-- C++17 compiler  
+- C++23 compiler  
 - **SFML 3.0+**
 
 #### macOS (Homebrew)
