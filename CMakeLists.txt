@@ -72,5 +72,21 @@ target_compile_definitions(tests PRIVATE
     PROJECT_SOURCE_DIR="${CMAKE_SOURCE_DIR}"
 )
 
+add_executable(tests_student
+    tests/test_student.cpp
+    src/Student.cpp
+    src/ResourceManager.cpp
+)
+target_include_directories(tests_student PRIVATE include)
+target_link_libraries(tests_student PRIVATE 
+    SFML::Graphics SFML::Window SFML::System
+    GTest::gtest_main
+)
+target_compile_definitions(tests_student PRIVATE 
+    PROJECT_SOURCE_DIR="${CMAKE_SOURCE_DIR}"
+)
+
+
 include(GoogleTest)
 gtest_discover_tests(tests)
+gtest_discover_tests(tests_student)
