@@ -6,7 +6,7 @@
 #include <iostream>
 #include "MainMenuState.hpp"
 
-RoomState::RoomState(StateManager& stateManager, ResourceManager& resources, RoomType type, Student& student)
+RoomState::RoomState(StateManager& stateManager, ResourceManager& resources, RoomType type, IStudent& student)
     : manager(stateManager)
     , currentRoom(type)
     , resourceManager(resources)

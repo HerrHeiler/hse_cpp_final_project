@@ -103,6 +103,6 @@ std::string Student::GetTimeString() const {
 
 
 void Student::ResetStats() {
-    energy = 100.f;          
+    energy = 100.f;       
     m_timeMinutes = 570.f;   
 }

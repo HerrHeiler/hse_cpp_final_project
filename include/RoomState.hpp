@@ -19,7 +19,7 @@ using RoomAction = std::variant<
 
 class RoomState : public State {
 public:
-    RoomState(StateManager& stateManager, ResourceManager& resources, RoomType type, Student& student);
+    RoomState(StateManager& stateManager, ResourceManager& resources, RoomType type, IStudent& student);
 
     void HandleEvent(const sf::Event& event) override;
     void Update(float dt) override;
@@ -28,7 +28,7 @@ public:
 private:
     StateManager& manager;
     ResourceManager& resourceManager;
-    Student& m_student;
+    IStudent& m_student;
     RoomType currentRoom;
     
     sf::Sprite m_background; 

@@ -14,7 +14,7 @@
 
 class World : public State {
 public:
-    World(ResourceManager& rm, StateManager& sm, Student& student);
+    World(ResourceManager& rm, StateManager& sm, IStudent& student);
 
     void Update(float deltaTime) override;
     void Render(sf::RenderWindow& window) override;
@@ -30,7 +30,7 @@ private:
 
     ResourceManager& resourceManager;
     StateManager& manager;
-    Student& student;
+    IStudent& student;
 
     std::vector<Door> doors;
     sf::Sprite m_background;

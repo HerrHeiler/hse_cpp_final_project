@@ -2,7 +2,7 @@
 #include "RoomState.hpp"
 
 
-World::World(ResourceManager& rm, StateManager& sm, Student& student)
+World::World(ResourceManager& rm, StateManager& sm, IStudent& student)
     : resourceManager(rm)
     , manager(sm)
     , student(student)
