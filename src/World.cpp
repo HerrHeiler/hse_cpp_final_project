@@ -77,10 +77,10 @@ void World::UpdateUI() {
 
 void World::LoadDoors() {
     const sf::Font& font = resourceManager.GetFont("default");
-    doors.emplace_back(sf::FloatRect({50.f, 200.f}, {80.f, 150.f}), RoomType::Home, "Home apartment", font);
-    doors.emplace_back(sf::FloatRect({250.f, 200.f}, {80.f, 150.f}), RoomType::Lecture, "Lecture hall", font);
-    doors.emplace_back(sf::FloatRect({450.f, 200.f}, {80.f, 150.f}), RoomType::Seminar, "Seminar room", font);
-    doors.emplace_back(sf::FloatRect({650.f, 200.f}, {80.f, 150.f}), RoomType::Cafeteria, "Cafeteria", font);
+    doors.push_back(std::make_shared<Door>(sf::FloatRect({50.f, 200.f}, {80.f, 150.f}), RoomType::Home, "Home apartment", font));
+    doors.push_back(std::make_shared<Door>(sf::FloatRect({250.f, 200.f}, {80.f, 150.f}), RoomType::Lecture, "Lecture hall", font));
+    doors.push_back(std::make_shared<Door>(sf::FloatRect({450.f, 200.f}, {80.f, 150.f}), RoomType::Seminar, "Seminar room", font));
+    doors.push_back(std::make_shared<Door>(sf::FloatRect({650.f, 200.f}, {80.f, 150.f}), RoomType::Cafeteria, "Cafeteria", font));
 }
 
 void World::Update(float deltaTime) {
@@ -105,8 +105,8 @@ void World::Update(float deltaTime) {
 void World::Render(sf::RenderWindow& window) {
     window.draw(m_background);
     for (const auto& door : doors) {
-        window.draw(door.shape);
-        window.draw(door.text);
+        window.draw(door->shape);
+        window.draw(door->text);
     }    
     student.Render(window);
 
@@ -131,8 +131,8 @@ void World::Render(sf::RenderWindow& window) {
 void World::CheckDoorCollision(const sf::FloatRect& studentBounds, bool ePressed) {
     if (!ePressed) return;
     for (const auto& door : doors) {
-        if (studentBounds.findIntersection(door.bounds).has_value()) {
-            currentRoom = door.target;
+        if (studentBounds.findIntersection(door->bounds).has_value()) {
+            currentRoom = door->target;
             manager.Push(std::make_unique<RoomState>(manager, resourceManager, currentRoom, student));
             return;
         }
