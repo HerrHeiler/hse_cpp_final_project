@@ -10,10 +10,16 @@
 #include <memory>
 #include <string>
 #include <functional>
+#include "RoomAction.hpp"
+
+using RoomAction = std::variant<
+    std::monostate,
+    std::function<void(float)>
+>;
 
 class RoomState : public State {
 public:
-    RoomState(StateManager& stateManager, ResourceManager& resources, RoomType type, Student& student);
+    RoomState(StateManager& stateManager, ResourceManager& resources, RoomType type, IStudent& student);
 
     void HandleEvent(const sf::Event& event) override;
     void Update(float dt) override;
@@ -22,11 +28,12 @@ public:
 private:
     StateManager& manager;
     ResourceManager& resourceManager;
-    Student& m_student;
+    IStudent& m_student;
     RoomType currentRoom;
     
     sf::Sprite m_background; 
     std::unique_ptr<sf::Texture> m_roomTexture;
+    std::unique_ptr<RoomActionBase> m_roomActionImpl;
 
     std::optional<sf::Text> m_title;       
     std::optional<sf::Text> m_hint;  
@@ -42,6 +49,12 @@ private:
     sf::RectangleShape m_achievementBox;
     sf::RectangleShape m_confirmBox;
     std::optional<sf::Text> m_confirmText;   
+
+    sf::RectangleShape m_deadInsideBox;
+    std::optional<sf::Text> m_deadInsideText;
+    
+    sf::RectangleShape m_megamindBox;
+    std::optional<sf::Text> m_megamindText;
     
     bool m_isGlitchActive; 
     float m_glitchTimer{0.f};
@@ -61,11 +74,6 @@ private:
     void performRoomAction(float dt);
 
     float calculateStatsBoxY() const;
-
-    using RoomAction = std::variant<
-        std::monostate,
-        std::function<void(float)>
-    >;
 
     RoomAction getRoomAction() const;
     

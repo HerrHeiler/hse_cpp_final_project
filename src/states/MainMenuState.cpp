@@ -5,7 +5,7 @@
 #include "Student.hpp"
 
 
-MainMenuState::MainMenuState(StateManager& sm, ResourceManager& rm, Student& st)
+MainMenuState::MainMenuState(StateManager& sm, ResourceManager& rm, IStudent& st)
     : stateManager(sm)
     , resourceManager(rm)
     , student(st)

@@ -6,7 +6,7 @@
 #include <iostream>
 #include "MainMenuState.hpp"
 
-RoomState::RoomState(StateManager& stateManager, ResourceManager& resources, RoomType type, Student& student)
+RoomState::RoomState(StateManager& stateManager, ResourceManager& resources, RoomType type, IStudent& student)
     : manager(stateManager)
     , currentRoom(type)
     , resourceManager(resources)
@@ -18,6 +18,7 @@ RoomState::RoomState(StateManager& stateManager, ResourceManager& resources, Roo
     , m_statsApplied(false)
     , m_showConfirmation(false)
     , m_roomTexture(nullptr)
+    , m_roomActionImpl(nullptr)
 {
     m_title.emplace(resources.GetFont("default"), "", 24);
     m_hint.emplace(resources.GetFont("default"), "Press ESC to return to corridor", 14);
@@ -64,13 +65,17 @@ RoomState::RoomState(StateManager& stateManager, ResourceManager& resources, Roo
     }
 
     if (type == RoomType::Home) {
+        m_roomActionImpl = std::make_unique<HomeRestAction>();
         roomName = "Welcome Home!";
         m_hint->setString(
             "Press ESC to return\n"
-            "Press SPACE to sleep (End Day)\n"
-            "Press 'P' to pray (+5 Mental, 15 min)"
+            "Press 'S' to sleep (End Day)\n"
+            "Press 'P' to pray (+5 Mental, 15 min)\n"
+            "Press SPACE to rest\n"
+            "(+Energy, +Mental)"
         );
     } else if (type == RoomType::Lecture) {
+        m_roomActionImpl = std::make_unique<LectureAction>();
         roomName = "OH! CALCULUS is awesome :)";
 
         m_lectureZone = sf::FloatRect(
@@ -93,13 +98,15 @@ RoomState::RoomState(StateManager& stateManager, ResourceManager& resources, Roo
         ));
         m_secretHint->setPosition({400.f, 570.f});
     } else if (type == RoomType::Seminar) {
+        m_roomActionImpl = std::make_unique<SeminarAction>();
         roomName = "Try to work, golden fish!";
         m_hint->setString(
             "Press ESC to return\n"
             "Press and hold SPACE to study\n"
-            "(+Knowledge, --Energy)"
+            "(+Knowledge, --Energy, ---Mental)"
         );
     } else if (type == RoomType::Cafeteria) {
+        m_roomActionImpl = std::make_unique<CafeteriaAction>();
         roomName = "Yummy room";
         m_hint->setString(
             "Press ESC to return\n"
@@ -189,6 +196,7 @@ void RoomState::HandleEvent(const sf::Event& event) {
 
         if (!m_isGlitchActive && keyEvent->code == sf::Keyboard::Key::Escape) {
             manager.Pop(); 
+            return;
         }
         if (currentRoom == RoomType::Lecture && keyEvent->code == sf::Keyboard::Key::E) {
             if (m_student.GetBounds().findIntersection(m_lectureZone).has_value()) {
@@ -208,7 +216,7 @@ void RoomState::HandleEvent(const sf::Event& event) {
             }
         }
 
-        if (currentRoom == RoomType::Home && keyEvent->code == sf::Keyboard::Key::Space) {
+        if (currentRoom == RoomType::Home && keyEvent->code == sf::Keyboard::Key::S) {
             m_student.ResetStats();
             manager.Change(std::make_unique<MainMenuState>(manager, resourceManager, m_student)); 
             return;
@@ -340,6 +348,16 @@ void RoomState::Render(sf::RenderWindow& window) {
         if (m_confirmText.has_value()) window.draw(m_confirmText.value());
     }
 
+
+    if (m_student.GetMentalState() <= -150.f) {
+        window.draw(m_deadInsideBox);
+        if (m_deadInsideText.has_value()) window.draw(m_deadInsideText.value());
+    }
+
+    if (m_student.GetKnowledge() >= 200.f) {
+        window.draw(m_megamindBox);
+        if (m_megamindText.has_value()) window.draw(m_megamindText.value());
+    }
     
 }
 
@@ -368,6 +386,28 @@ void RoomState::InitUI() {
         m_timeUI->setFillColor(sf::Color::Cyan);
         m_timeUI->setPosition({10.f, calculateStatsBoxY() + 60.f});
     }
+
+
+    m_deadInsideText.emplace(resourceManager.GetFont("default"), "ACHIEVEMENT UNLOCKED:\nDEAD INSIDE (Mental -150)", 16);
+    m_deadInsideText->setFillColor(sf::Color::White);
+
+    sf::FloatRect diBounds = m_deadInsideText->getLocalBounds();
+    m_deadInsideBox.setSize({diBounds.size.x + 20.f, diBounds.size.y + 20.f});
+    m_deadInsideBox.setFillColor(sf::Color(20, 20, 20, 230)); 
+    m_deadInsideBox.setOutlineColor(sf::Color(138, 43, 226));
+    m_deadInsideBox.setOutlineThickness(2.f);
+    m_deadInsideBox.setPosition({800.f - diBounds.size.x - 30.f, 600.f - diBounds.size.y - 30.f});
+    m_deadInsideText->setPosition({800.f - diBounds.size.x - 20.f, 600.f - diBounds.size.y - 20.f});
+
+    m_megamindText.emplace(resourceManager.GetFont("default"), "ACHIEVEMENT UNLOCKED:\nMEGAMIND (Knowledge 200+)", 16);
+    m_megamindText->setFillColor(sf::Color(0, 255, 255)); 
+    sf::FloatRect mmBounds = m_megamindText->getLocalBounds();
+    m_megamindBox.setSize({mmBounds.size.x + 20.f, mmBounds.size.y + 20.f});
+    m_megamindBox.setFillColor(sf::Color(20, 20, 20, 230)); 
+    m_megamindBox.setOutlineColor(sf::Color(0, 255, 255)); 
+    m_megamindBox.setOutlineThickness(2.f);
+    m_megamindBox.setPosition({10.f, 600.f - mmBounds.size.y - 30.f});
+    m_megamindText->setPosition({20.f, 600.f - mmBounds.size.y - 20.f});
 }
 
 void RoomState::UpdateUI() {
@@ -415,16 +455,16 @@ float RoomState::calculateStatsBoxY() const {
     return 110.f;
 }
 
-RoomState::RoomAction RoomState::getRoomAction() const {
-    const auto config = getRoomConfig(currentRoom);
-    
-    return [this, config](float dt) {
-        m_student.ModifyStats(
-            config.energyMod * dt,
-            config.knowledgeMod * dt,
-            config.moodMod * dt
-        );
-        
-        m_student.AddTime(dt * 60.0f);
+RoomAction RoomState::getRoomAction() const {
+    if (!m_roomActionImpl) {
+        return std::monostate{};
+    }
+
+    return RoomAction{
+        std::function<void(float)>(
+            [impl = m_roomActionImpl.get(), this](float dt) {
+                impl->Apply(m_student, dt);
+            }
+        )
     };
 }

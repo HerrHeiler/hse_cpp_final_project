@@ -1,9 +1,10 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include "IStudent.hpp"
 
 class ResourceManager;
 class StateManager;
-class Student;
+// class Student;
 
 class State {
 public:
@@ -13,5 +14,5 @@ public:
     virtual void Update(float dt) = 0;
     virtual void Render(sf::RenderWindow& window) = 0;
 
-    virtual void OnStartGame(ResourceManager&, StateManager&, Student&) {}
+    virtual void OnStartGame(ResourceManager&, StateManager&, IStudent&) {}
 };

@@ -1,36 +1,37 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include "RoomType.hpp"
+#include "IStudent.hpp"
 
-class Student {
+class Student : public IStudent {
 public:
     Student(const sf::Texture& texture);
 
     // = move
-    void Update(float dt);
+    void Update(float dt) override;
 
     // = draw
-    void Render(sf::RenderTarget& target);
+    void Render(sf::RenderTarget& target) override;
 
     // positioning
-    void SetPosition(float x, float y);         
-    sf::Vector2f GetPosition() const;           
-    sf::FloatRect GetBounds() const;  
+    void SetPosition(float x, float y) override;         
+    sf::Vector2f GetPosition() const override;           
+    sf::FloatRect GetBounds() const override;  
 
-    void HandleEvent(const sf::Event& event);
+    void HandleEvent(const sf::Event& event) override;
 
-    void ModifyStats(float dEnergy, float dKnowledge, float dMentalState);
+    void ModifyStats(float dEnergy, float dKnowledge, float dMentalState) override;
 
-    float GetMentalState() const { return mental_state; }
-    float GetEnergy() const { return energy; }
-    float GetKnowledge() const { return knowledge; }
+    float GetMentalState() const override { return mental_state; }
+    float GetEnergy() const override { return energy; }
+    float GetKnowledge() const override { return knowledge; }
 
-    void UpdateEnvironment(RoomType type, float dt);
+    void UpdateEnvironment(RoomType type, float dt) override;
 
-    void AddTime(float minutes);
-    std::string GetTimeString() const;
+    void AddTime(float minutes) override;
+    std::string GetTimeString() const override;
 
-    void ResetStats();
+    void ResetStats() override;
 
 private:
     sf::Sprite sprite;
