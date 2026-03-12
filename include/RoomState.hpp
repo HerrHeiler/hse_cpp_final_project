@@ -10,6 +10,12 @@
 #include <memory>
 #include <string>
 #include <functional>
+#include "RoomAction.hpp"
+
+using RoomAction = std::variant<
+    std::monostate,
+    std::function<void(float)>
+>;
 
 class RoomState : public State {
 public:
@@ -27,6 +33,7 @@ private:
     
     sf::Sprite m_background; 
     std::unique_ptr<sf::Texture> m_roomTexture;
+    std::unique_ptr<RoomActionBase> m_roomActionImpl;
 
     std::optional<sf::Text> m_title;       
     std::optional<sf::Text> m_hint;  
@@ -61,11 +68,6 @@ private:
     void performRoomAction(float dt);
 
     float calculateStatsBoxY() const;
-
-    using RoomAction = std::variant<
-        std::monostate,
-        std::function<void(float)>
-    >;
 
     RoomAction getRoomAction() const;
     

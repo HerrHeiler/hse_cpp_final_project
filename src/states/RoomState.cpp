@@ -18,6 +18,7 @@ RoomState::RoomState(StateManager& stateManager, ResourceManager& resources, Roo
     , m_statsApplied(false)
     , m_showConfirmation(false)
     , m_roomTexture(nullptr)
+    , m_roomActionImpl(nullptr)
 {
     m_title.emplace(resources.GetFont("default"), "", 24);
     m_hint.emplace(resources.GetFont("default"), "Press ESC to return to corridor", 14);
@@ -64,13 +65,17 @@ RoomState::RoomState(StateManager& stateManager, ResourceManager& resources, Roo
     }
 
     if (type == RoomType::Home) {
+        m_roomActionImpl = std::make_unique<HomeRestAction>();
         roomName = "Welcome Home!";
         m_hint->setString(
             "Press ESC to return\n"
-            "Press SPACE to sleep (End Day)\n"
+            "Press 'S' to sleep (End Day)\n"
             "Press 'P' to pray (+5 Mental, 15 min)"
+            "Press SPACE to study\n"
+            "(+Energy, +Mental)"
         );
     } else if (type == RoomType::Lecture) {
+        m_roomActionImpl = std::make_unique<LectureAction>();
         roomName = "OH! CALCULUS is awesome :)";
 
         m_lectureZone = sf::FloatRect(
@@ -93,13 +98,15 @@ RoomState::RoomState(StateManager& stateManager, ResourceManager& resources, Roo
         ));
         m_secretHint->setPosition({400.f, 570.f});
     } else if (type == RoomType::Seminar) {
+        m_roomActionImpl = std::make_unique<SeminarAction>();
         roomName = "Try to work, golden fish!";
         m_hint->setString(
             "Press ESC to return\n"
             "Press and hold SPACE to study\n"
-            "(+Knowledge, --Energy)"
+            "(+Knowledge, --Energy, ---Mental)"
         );
     } else if (type == RoomType::Cafeteria) {
+        m_roomActionImpl = std::make_unique<CafeteriaAction>();
         roomName = "Yummy room";
         m_hint->setString(
             "Press ESC to return\n"
@@ -208,7 +215,7 @@ void RoomState::HandleEvent(const sf::Event& event) {
             }
         }
 
-        if (currentRoom == RoomType::Home && keyEvent->code == sf::Keyboard::Key::Space) {
+        if (currentRoom == RoomType::Home && keyEvent->code == sf::Keyboard::Key::S) {
             m_student.ResetStats();
             manager.Change(std::make_unique<MainMenuState>(manager, resourceManager, m_student)); 
             return;
@@ -415,16 +422,16 @@ float RoomState::calculateStatsBoxY() const {
     return 110.f;
 }
 
-RoomState::RoomAction RoomState::getRoomAction() const {
-    const auto config = getRoomConfig(currentRoom);
-    
-    return [this, config](float dt) {
-        m_student.ModifyStats(
-            config.energyMod * dt,
-            config.knowledgeMod * dt,
-            config.moodMod * dt
-        );
-        
-        m_student.AddTime(dt * 60.0f);
+RoomAction RoomState::getRoomAction() const {
+    if (!m_roomActionImpl) {
+        return std::monostate{};
+    }
+
+    return RoomAction{
+        std::function<void(float)>(
+            [impl = m_roomActionImpl.get(), this](float dt) {
+                impl->Apply(m_student, dt);
+            }
+        )
     };
 }
