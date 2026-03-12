@@ -49,6 +49,9 @@ private:
     sf::RectangleShape m_achievementBox;
     sf::RectangleShape m_confirmBox;
     std::optional<sf::Text> m_confirmText;   
+
+    sf::RectangleShape m_deadInsideBox;
+    std::optional<sf::Text> m_deadInsideText;
     
     bool m_isGlitchActive; 
     float m_glitchTimer{0.f};

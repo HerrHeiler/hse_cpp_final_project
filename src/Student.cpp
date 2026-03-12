@@ -61,7 +61,7 @@ void Student::ModifyStats(float dEnergy, float dKnowledge, float dMentalState) {
     if (energy < 0.f) energy = 0.f;
     if (energy > 100.f) energy = 100.f;
 
-    if (mental_state < -100.f) mental_state = -100.f;
+    if (mental_state < -150.f) mental_state = -150.f;
     if (mental_state > 150.f) mental_state = 150.f;
 
     if (knowledge < 0.f) knowledge = 0.f;

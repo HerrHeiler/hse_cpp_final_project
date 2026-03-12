@@ -70,8 +70,8 @@ RoomState::RoomState(StateManager& stateManager, ResourceManager& resources, Roo
         m_hint->setString(
             "Press ESC to return\n"
             "Press 'S' to sleep (End Day)\n"
-            "Press 'P' to pray (+5 Mental, 15 min)"
-            "Press SPACE to study\n"
+            "Press 'P' to pray (+5 Mental, 15 min)\n"
+            "Press SPACE to rest\n"
             "(+Energy, +Mental)"
         );
     } else if (type == RoomType::Lecture) {
@@ -196,6 +196,7 @@ void RoomState::HandleEvent(const sf::Event& event) {
 
         if (!m_isGlitchActive && keyEvent->code == sf::Keyboard::Key::Escape) {
             manager.Pop(); 
+            return;
         }
         if (currentRoom == RoomType::Lecture && keyEvent->code == sf::Keyboard::Key::E) {
             if (m_student.GetBounds().findIntersection(m_lectureZone).has_value()) {
@@ -347,6 +348,12 @@ void RoomState::Render(sf::RenderWindow& window) {
         if (m_confirmText.has_value()) window.draw(m_confirmText.value());
     }
 
+
+    if (m_student.GetMentalState() <= -150.f) {
+        window.draw(m_deadInsideBox);
+        if (m_deadInsideText.has_value()) window.draw(m_deadInsideText.value());
+    }
+
     
 }
 
@@ -375,6 +382,18 @@ void RoomState::InitUI() {
         m_timeUI->setFillColor(sf::Color::Cyan);
         m_timeUI->setPosition({10.f, calculateStatsBoxY() + 60.f});
     }
+
+
+    m_deadInsideText.emplace(resourceManager.GetFont("default"), "ACHIEVEMENT UNLOCKED:\nDEAD INSIDE (Mental -150)", 16);
+    m_deadInsideText->setFillColor(sf::Color::White);
+
+    sf::FloatRect diBounds = m_deadInsideText->getLocalBounds();
+    m_deadInsideBox.setSize({diBounds.size.x + 20.f, diBounds.size.y + 20.f});
+    m_deadInsideBox.setFillColor(sf::Color(20, 20, 20, 230)); 
+    m_deadInsideBox.setOutlineColor(sf::Color(138, 43, 226));
+    m_deadInsideBox.setOutlineThickness(2.f);
+    m_deadInsideBox.setPosition({800.f - diBounds.size.x - 30.f, 600.f - diBounds.size.y - 30.f});
+    m_deadInsideText->setPosition({800.f - diBounds.size.x - 20.f, 600.f - diBounds.size.y - 20.f});
 }
 
 void RoomState::UpdateUI() {
