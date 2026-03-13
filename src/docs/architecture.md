@@ -3,10 +3,10 @@ A player is an hse bachelor first-year student
 They walk into the hallway, enter different rooms like home apartment, lecture hall, et cetera. Have several stats: mental health, energy, knoweldge, which change after some actions are done
 
 # Rooms' descriptions
-- lecture hall ~ gives 5 knowledge, takes 5 energy (if walked in from home apartment) and 0 otherwise, other parametres are unchanged
-- seminar room ~ gives 35 knowledge, takes 25 energy
-- home apartment ~ gives 15 mental health, 10 energy
-- cafeteria ~ gives 12 energy, takes 1 mental health
+- lecture hall ~ gives knowledge, takes energy
+- seminar room ~ gives knowledge, takes energy and mental state
+- home apartment ~ gives mental health and energy
+- cafeteria ~ gives energy, takes mental health
 - to be updated...
 
 # Student parameters
@@ -18,6 +18,12 @@ They walk into the hallway, enter different rooms like home apartment, lecture h
 ## Textures:
   corridor_background: assets/textures/corridor.png
   student: assets/textures/student.png
+  cafeteria_background: assets/textures/cafeteria_room.png
+  home_background: assets/textures/home_room.png
+  lecture_background: assets/textures/lecture.png
+  pet: assets/textures/pet.png
+  seminar_background: assets/textures/seminar_room.png
+
 
 ## Fonts:
   main: assets/fonts/OpenSans-Light.ttf
