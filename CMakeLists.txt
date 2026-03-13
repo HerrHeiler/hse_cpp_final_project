@@ -22,6 +22,14 @@ FetchContent_Declare(SFML
 FetchContent_MakeAvailable(SFML)
 
 
+include(FetchContent)
+FetchContent_Declare(
+    googletest
+    GIT_REPOSITORY https://github.com/google/googletest.git
+    GIT_TAG v1.14.0
+)
+FetchContent_MakeAvailable(googletest)
+
 
 include_directories(include)
 
@@ -31,7 +39,7 @@ add_executable(student-game
     src/StateManager.cpp 
     src/states/MainMenuState.cpp 
     src/states/RoomState.cpp 
-    src/states/CorridorState.cpp 
+    src/states/CorridorState.cpp
     src/Student.cpp
     src/World.cpp
     src/ResourceManager.cpp
@@ -39,10 +47,42 @@ add_executable(student-game
 )
 
 target_include_directories(student-game PRIVATE include)
-
 target_link_libraries(student-game
     PRIVATE
         SFML::Graphics
         SFML::Window
         SFML::System
 )
+
+
+enable_testing()
+
+add_executable(tests
+    tests/test_state_manager.cpp
+    tests/test_world_time.cpp
+    tests/test_world_rooms.cpp
+
+    src/StateManager.cpp
+    src/Student.cpp
+    src/World.cpp
+    src/ResourceManager.cpp
+    src/states/RoomState.cpp
+    src/states/CorridorState.cpp
+    src/states/MainMenuState.cpp
+)
+
+
+target_include_directories(tests PRIVATE include)
+target_link_libraries(tests PRIVATE 
+    SFML::Graphics 
+    SFML::Window 
+    SFML::System
+    GTest::gtest_main
+)
+
+target_compile_definitions(tests PRIVATE 
+    PROJECT_SOURCE_DIR="${CMAKE_SOURCE_DIR}"
+)
+
+include(GoogleTest)
+gtest_discover_tests(tests)
