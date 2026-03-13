@@ -42,3 +42,13 @@ constexpr std::string_view getTextureIdForRoom(RoomType type) {
         default: return "corridor";
     }
 }
+
+constexpr std::string_view getHintForRoom(RoomType type) {
+    switch (type) {
+        case RoomType::Home: return "Press SPACE to rest\n(+Energy, +Mental)";
+        case RoomType::Lecture: return "Press SPACE to study\n(+Knowledge, -Energy)";
+        case RoomType::Seminar: return "Press SPACE to work\n(+Knowledge, --Energy)";
+        case RoomType::Cafeteria: return "Press SPACE to eat\n(+Energy, -Mental)";
+        default: return "Press ESC to return";
+    }
+}

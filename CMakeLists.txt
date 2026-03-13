@@ -8,17 +8,25 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
 #for mac os
-# set(SFML_DIR "/opt/homebrew/opt/sfml/lib/cmake/SFML")
-# list(APPEND CMAKE_PREFIX_PATH "/opt/homebrew")
-# find_package(SFML 3 COMPONENTS Window Graphics System REQUIRED)
+set(SFML_DIR "/opt/homebrew/opt/sfml/lib/cmake/SFML")
+find_package(SFML 3 COMPONENTS Window Graphics System REQUIRED)
 
 
 #for linux 
+#include(FetchContent)
+#FetchContent_Declare(SFML
+#    GIT_REPOSITORY https://github.com/SFML/SFML.git
+#    GIT_TAG 3.0.0
+#)
+#FetchContent_MakeAvailable(SFML)
+
 include(FetchContent)
-FetchContent_Declare(SFML
-    GIT_REPOSITORY https://github.com/SFML/SFML.git
-    GIT_TAG 3.0.0
+FetchContent_Declare(
+    googletest
+    GIT_REPOSITORY https://github.com/google/googletest.git
+    GIT_TAG v1.14.0
 )
+
 FetchContent_MakeAvailable(SFML)
 
 
@@ -69,6 +77,9 @@ add_executable(tests
     src/states/RoomState.cpp
     src/states/CorridorState.cpp
     src/states/MainMenuState.cpp
+
+    tests/test_resource_manager.cpp
+    src/ResourceManager.cpp
 )
 
 
@@ -86,3 +97,23 @@ target_compile_definitions(tests PRIVATE
 
 include(GoogleTest)
 gtest_discover_tests(tests)
+
+add_executable(tests_student
+    tests/test_student.cpp
+    src/Student.cpp
+    src/ResourceManager.cpp
+)
+target_include_directories(tests_student PRIVATE include)
+target_link_libraries(tests_student PRIVATE 
+    SFML::Graphics SFML::Window SFML::System
+    GTest::gtest_main
+)
+target_compile_definitions(tests_student PRIVATE 
+    PROJECT_SOURCE_DIR="${CMAKE_SOURCE_DIR}"
+)
+
+
+include(GoogleTest)
+gtest_discover_tests(tests)
+gtest_discover_tests(tests_student)
+

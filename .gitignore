@@ -46,3 +46,6 @@ out/
 
 # debug information files
 *.dwo
+
+# some strange mac generations
+*.DS_Store
