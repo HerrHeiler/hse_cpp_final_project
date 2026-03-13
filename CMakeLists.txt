@@ -27,15 +27,6 @@ FetchContent_Declare(
     GIT_TAG v1.14.0
 )
 
-FetchContent_MakeAvailable(SFML)
-
-
-include(FetchContent)
-FetchContent_Declare(
-    googletest
-    GIT_REPOSITORY https://github.com/google/googletest.git
-    GIT_TAG v1.14.0
-)
 FetchContent_MakeAvailable(googletest)
 
 
@@ -79,7 +70,6 @@ add_executable(tests
     src/states/MainMenuState.cpp
 
     tests/test_resource_manager.cpp
-    src/ResourceManager.cpp
 )
 
 
@@ -94,9 +84,6 @@ target_link_libraries(tests PRIVATE
 target_compile_definitions(tests PRIVATE 
     PROJECT_SOURCE_DIR="${CMAKE_SOURCE_DIR}"
 )
-
-include(GoogleTest)
-gtest_discover_tests(tests)
 
 add_executable(tests_student
     tests/test_student.cpp
@@ -116,4 +103,3 @@ target_compile_definitions(tests_student PRIVATE
 include(GoogleTest)
 gtest_discover_tests(tests)
 gtest_discover_tests(tests_student)
-
