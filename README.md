@@ -70,3 +70,5 @@ From the project root (so relative assets/ paths work):
 cd hse_cpp_final_project
 ./build/student-game
 ```
+optionally (for leakages)
+cmake -DENABLE_ASAN=ON -B build -S .
